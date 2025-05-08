@@ -1,16 +1,14 @@
-# naive_bayes_classifier.py
-
 import csv
 import math
 from collections import defaultdict, Counter
 
 class NaiveBayesClassifier:
     def __init__(self):
-        self.priors = Counter()
-        self.discrete_likelihoods = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-        self.continuous_stats = defaultdict(lambda: defaultdict(lambda: [0, 0]))
-        self.feature_types = []
-        self.feature_names = []
+        self.priors = Counter() #Counter μετράει τον αριθμό εμφανήσεων ενος αντικειμένου
+        self.discrete_likelihoods = defaultdict(lambda: defaultdict(lambda: defaultdict(int))) #Δημιουργεί ένα dict τριών στρώσεων
+        self.continuous_stats = defaultdict(lambda: defaultdict(lambda: [0, 0])) #Δημιουργεί ένα dict δύο στρώσεων
+        self.feature_types = [] #Τύποι των features χωρίζονται σε D(discrete) & C(continuous)
+        self.feature_names = [] #Ονόματα των features π.χ. Sepal Width
         self.classes = set()
         self.total_samples = 0
 
@@ -19,14 +17,14 @@ class NaiveBayesClassifier:
             reader = csv.reader(csvfile)
             header = next(reader)
 
-            # Extract features and their types ("name",C or D,...)
+            # Διαβάζει τα feature και τον τύπο τους π.χ. ("Sepal width",C or D,...)
             self.feature_names = [header[i] for i in range(0, len(header)-1, 2)]
             self.feature_types = [header[i+1] for i in range(0, len(header)-1, 2)]
 
             data = []
             for row in reader:
-                x = row[:-1]
-                y = row[-1]
+                x = row[:-1] # Τα features
+                y = row[-1] # Η κατηγορία του δεδομένου
                 self.total_samples += 1
                 self.priors[y] += 1
                 self.classes.add(y)
@@ -39,25 +37,25 @@ class NaiveBayesClassifier:
                         self.discrete_likelihoods[y][fname][val] += 1
                     else:
                         val = float(val)
-                        mu, var = self.continuous_stats[y][fname]
+                        mean, var = self.continuous_stats[y][fname]
                         n = self.discrete_likelihoods[y][fname].get('_count', 0) + 1
-                        new_mu = mu + (val - mu) / n
-                        new_var = var + (val - mu) * (val - new_mu)
-                        self.continuous_stats[y][fname] = [new_mu, new_var]
+                        new_mean = mean + (val - mean) / n
+                        new_var = var + (val - mean) * (val - new_mean)
+                        self.continuous_stats[y][fname] = [new_mean, new_var]
                         self.discrete_likelihoods[y][fname]['_count'] = n
 
         # Finalize variance calculation
         for y in self.classes:
             for fname in self.feature_names:
                 if self.feature_types[self.feature_names.index(fname)] == 'C':
-                    mu, var = self.continuous_stats[y][fname]
+                    mean, var = self.continuous_stats[y][fname]
                     n = self.discrete_likelihoods[y][fname]['_count']
-                    self.continuous_stats[y][fname] = [mu, var / (n - 1)]
+                    self.continuous_stats[y][fname] = [mean, var / (n - 1)]
 
-    def gaussian_prob(self, x, mu, var):
+    def gaussian_prob(self, x, mean, var):
         if var == 0:
             return 1e-9
-        return (1.0 / math.sqrt(2 * math.pi * var)) * math.exp(-((x - mu) ** 2) / (2 * var))
+        return (1.0 / math.sqrt(2 * math.pi * var)) * math.exp(-((x - mean) ** 2) / (2 * var))
 
     def predict(self, input_features):
         posteriors = {}
@@ -72,8 +70,8 @@ class NaiveBayesClassifier:
                     likelihood *= freq / total
                 else:
                     val = float(val)
-                    mu, var = self.continuous_stats[y][fname]
-                    likelihood *= self.gaussian_prob(val, mu, var)
+                    mean, var = self.continuous_stats[y][fname]
+                    likelihood *= self.gaussian_prob(val, mean, var)
             posteriors[y] = prior * likelihood
 
         total_post = sum(posteriors.values())
@@ -86,14 +84,8 @@ class NaiveBayesClassifier:
 def main():
     nb = NaiveBayesClassifier()
     nb.fit("IRIS.csv")
-    result = nb.predict(['5.9', '3.0', '5.1', '1.8'])
+    result = nb.predict(['5.1', '3.5', '1.4', '0.2'])
     print(result)
 
 if __name__ == "__main__":
     main()
-
-# Example usage:
-# nb = NaiveBayesClassifier()
-# nb.fit('iris_dataset.csv')
-# result = nb.predict(['5.9', '3.0', '5.1', '1.8'])
-# print(result)
