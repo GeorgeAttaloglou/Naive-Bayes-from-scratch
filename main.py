@@ -80,6 +80,8 @@ class NaiveBayesClassifier:
         total_post = sum(posteriors.values())
         for y in posteriors:
             posteriors[y] /= total_post
+        #uncomment για να δεις την δομή των πινάκων
+        #print(self.priors,"\n-----\n", self.discrete_likelihoods, "\n-----\n", self.continuous_stats)
 
         return posteriors
 
