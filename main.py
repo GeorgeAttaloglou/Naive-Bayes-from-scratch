@@ -29,7 +29,8 @@ class NaiveBayesClassifier:
                 self.priors[y] += 1
                 self.classes.add(y)
                 data.append((x, y))
-
+                
+            # Υπολογίζει τις πιθανότητες για τα διακριτά χαρακτηριστικά και τις στατιστικές για τα συνεχόμενα χαρακτηριστικά
             for x, y in data:
                 for i, val in enumerate(x):
                     fname = self.feature_names[i]
@@ -44,7 +45,7 @@ class NaiveBayesClassifier:
                         self.continuous_stats[y][fname] = [new_mean, new_var]
                         self.discrete_likelihoods[y][fname]['_count'] = n
 
-        # Finalize variance calculation
+        # Κανονικοποιεί τις στατιστικές των συνεχών χαρακτηριστικών
         for y in self.classes:
             for fname in self.feature_names:
                 if self.feature_types[self.feature_names.index(fname)] == 'C':
@@ -58,6 +59,8 @@ class NaiveBayesClassifier:
         return (1.0 / math.sqrt(2 * math.pi * var)) * math.exp(-((x - mean) ** 2) / (2 * var))
 
     def predict(self, input_features):
+        
+        # Yπολογίζει τις πιθανότητες για κάθε κατηγορία και επιστρέφει την κατηγορία με τη μεγαλύτερη πιθανότητα
         posteriors = {}
         for y in self.classes:
             prior = self.priors[y] / self.total_samples
