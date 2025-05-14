@@ -89,7 +89,8 @@ class NaiveBayesClassifier:
 def main():
     nb = NaiveBayesClassifier()
     nb.fit("IRIS.csv")
-    result = nb.predict(['5.1', '3.5', '1.4', '0.2'])
+    user_input = input("Enter features (example: 5.1, 3.5, 1.4, 0.2): ").split(",")
+    result = nb.predict(user_input)
     print(result)
 
 if __name__ == "__main__":
