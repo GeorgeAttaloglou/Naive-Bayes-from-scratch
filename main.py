@@ -32,20 +32,20 @@ class NaiveBayesClassifier:
                 
             # Υπολογίζει τις πιθανότητες για τα διακριτά χαρακτηριστικά και τις στατιστικές για τα συνεχόμενα χαρακτηριστικά
             for x, y in data:
-                for i, val in enumerate(x):
+                for i, value in enumerate(x):
                     fname = self.feature_names[i]
                     if self.feature_types[i] == 'D':
-                        self.discrete_likelihoods[y][fname][val] += 1
+                        self.discrete_likelihoods[y][fname][value] += 1
                     else:
-                        val = float(val)
+                        value = float(value)
                         mean, var = self.continuous_stats[y][fname]
                         n = self.discrete_likelihoods[y][fname].get('_count', 0) + 1
-                        new_mean = mean + (val - mean) / n
-                        new_var = var + (val - mean) * (val - new_mean)
+                        new_mean = mean + (value - mean) / n
+                        new_var = var + (value - mean) * (value - new_mean)
                         self.continuous_stats[y][fname] = [new_mean, new_var]
                         self.discrete_likelihoods[y][fname]['_count'] = n
 
-        # Κανονικοποιεί τις στατιστικές των συνεχών χαρακτηριστικών
+        # Κανονικοποιεί τις στατιστικές των συνεχών χαρακτηριστικών διαιρώντας με το πλήθος των δειγμάτων
         for y in self.classes:
             for fname in self.feature_names:
                 if self.feature_types[self.feature_names.index(fname)] == 'C':
@@ -55,7 +55,7 @@ class NaiveBayesClassifier:
 
     def gaussian_prob(self, x, mean, var):
         if var == 0:
-            return 1e-9
+            return 1e-9 # Αποφυγή διαίρεσης με το μηδέν
         return (1.0 / math.sqrt(2 * math.pi * var)) * math.exp(-((x - mean) ** 2) / (2 * var))
 
     def predict(self, input_features):
@@ -65,23 +65,23 @@ class NaiveBayesClassifier:
         for y in self.classes:
             prior = self.priors[y] / self.total_samples
             likelihood = 1.0
-            for i, val in enumerate(input_features):
+            for i, value in enumerate(input_features):
                 fname = self.feature_names[i]
                 if self.feature_types[i] == 'D':
-                    freq = self.discrete_likelihoods[y][fname].get(val, 0) + 1  # Laplace smoothing
-                    total = sum(self.discrete_likelihoods[y][fname].values()) + len(self.discrete_likelihoods[y][fname])
+                    freq = self.discrete_likelihoods[y][fname].get(value, 0) + 1  # Laplace smoothing
+                    total = sum(self.discrete_likelihoods[y][fname].values()) + len(self.discrete_likelihoods[y][fname]) # Laplace smoothing
                     likelihood *= freq / total
                 else:
-                    val = float(val)
+                    value = float(value)
                     mean, var = self.continuous_stats[y][fname]
-                    likelihood *= self.gaussian_prob(val, mean, var)
-            posteriors[y] = prior * likelihood
+                    likelihood *= self.gaussian_prob(value, mean, var)
+            posteriors[y] = prior * likelihood # Υπολογισμός της πιθανοφάνειας
 
         total_post = sum(posteriors.values())
         for y in posteriors:
-            posteriors[y] /= total_post
-        #uncomment για να δεις την δομή των πινάκων
-        #print(self.priors,"\n-----\n", self.discrete_likelihoods, "\n-----\n", self.continuous_stats)
+            posteriors[y] /= total_post # Κανονικοποίηση των πιθανοτήτων
+        # uncomment για να δεις την δομή των πινάκων
+        # print(self.priors,"\n-----\n", self.discrete_likelihoods, "\n-----\n", self.continuous_stats)
 
         return posteriors
 
@@ -89,7 +89,7 @@ class NaiveBayesClassifier:
 def main():
     nb = NaiveBayesClassifier()
     nb.fit("IRIS.csv")
-    user_input = input("Enter features (example: 5.1, 3.5, 1.4, 0.2): ").split(",")
+    user_input = input("Εισάγετε τιμές (παράδειγμα: 5.1, 3.5, 1.4, 0.2): ").split(",")
     result = nb.predict(user_input)
     print(result)
 
