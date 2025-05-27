@@ -1,0 +1,15 @@
+Fever,C,Cough,D,Headache,D,Vomiting,D,Runny_nose,D,Disease
+36.6,True,False,False,True,ALLERGY
+36.5,Little,True,False,False,ALLERGY
+37.2,False,True,Little,True,ALLERGY
+36.9,False,True,False,True,ALLERGY
+38.2,True,True,False,False,INFECTION
+37.9,True,True,False,True,INFECTION
+39.8,True,True,True,Little,INFECTION
+36.9,True,True,False,True,INFECTION
+37.5,False,True,True,True,INFECTION
+38.4,True,True,Little,True,INFECTION
+36.5,False,True,True,False,GASTROENTERITIS
+36.4,Little,True,True,False,GASTROENTERITIS
+37.6,False,True,Little,False,GASTROENTERITIS
+37.8,False,True,Little,False,GASTROENTERITIS

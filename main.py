@@ -88,8 +88,8 @@ class NaiveBayesClassifier:
 
 def main():
     nb = NaiveBayesClassifier()
-    nb.fit("IRIS.csv")
-    user_input = input("Εισάγετε τιμές (παράδειγμα: 5.1, 3.5, 1.4, 0.2): ").split(",")
+    nb.fit("artificial_dataset.csv")
+    user_input = input("Enter features (example: 5.1, 3.5, 1.4, 0.2): ").split(",")
     result = nb.predict(user_input)
     print(result)
 
